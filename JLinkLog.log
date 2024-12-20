@@ -1,0 +1,86 @@
+T1F01E780 000:000.756   SEGGER J-Link V7.96j Log File
+T1F01E780 000:000.847   DLL Compiled: May 29 2024 15:42:37
+T1F01E780 000:000.850   Logging started @ 2024-12-16 10:12
+T1F01E780 000:000.853   Process: /home/maldus/.eclipse/com.renesas.platform_894671356/DebugComp/RA/e2-server-gdb
+T1F01E780 000:000.856 - 0.856ms
+T1F01E780 000:000.860 JLINK_GetDLLVersion()
+T1F01E780 000:000.863 - 0.003ms returns 79610
+T1F01E780 000:001.999 JLINK_OpenEx(...)
+T1F01E780 000:005.521   Firmware: J-Link V12 compiled May 28 2024 15:36:13
+T1F01E780 000:006.387   Firmware: J-Link V12 compiled May 28 2024 15:36:13
+T1F01E780 000:008.311   Hardware: V12.00
+T1F01E780 000:008.320   S/N: 822003761
+T1F01E780 000:008.324   OEM: SEGGER
+T1F01E780 000:008.328   Feature(s): GDB
+T1F01E780 000:009.356   Bootloader: 2022 Oct 19
+T1F01E780 000:009.886   USB speed mode: High speed (480 MBit/s)
+T1F01E780 000:010.250   TELNET listener socket opened on port 19021
+T1F01E780 000:010.342   WEBSRV WEBSRV_Init(): Starting webserver thread(s)
+T1F01E780 000:010.403   WEBSRV Webserver running on local port 19080
+T1F01E780 000:010.418   Looking for J-Link GUI Server exe at: ARM/Segger_v7.96.10/JLinkGUIServerExe
+T1F01E780 000:010.424   Looking for J-Link GUI Server exe at: /opt/SEGGER/JLink/JLinkGUIServerExe
+T1F01E780 000:316.590   Failed to connect to J-Link GUI Server.
+T1F01E780 000:316.659 - 314.640ms returns "O.K."
+T1F01E780 000:316.726 JLINK_ExecCommand("ProjectFile="/home/maldus/Projects/Rotondi/pressa_rotondi/pressa_rotondi Debug_Flat.jlink"", ...). 
+T1F01E780 000:355.569 - 38.843ms returns 0x00
+T1F01E780 000:355.749 JLINK_ExecCommand("device=R7FA2L1AB", ...). 
+T1F01E780 000:357.838   Flash bank @ 0x01010010: SFL: Parsing sectorization info from ELF file
+T1F01E780 000:357.853     FlashDevice.SectorInfo[0]: .SectorSize = 0x00000024, .SectorStartAddr = 0x00000000
+T1F01E780 000:357.864   FlashBank @0x01010010: Sectorization info from SFL ELF file ignored because sectorization override from DLL / XML file is active.
+T1F01E780 000:358.144   Device "R7FA2L1AB" selected.
+T1F01E780 000:358.260 - 2.499ms returns 0x00
+T1F01E780 000:358.296 JLINK_ExecCommand("SetCPUConnectIDCODE = FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", ...). 
+T1F01E780 000:358.308 - 0.002ms returns 0x00
+T1F01E780 000:358.316 JLINK_TIF_GetAvailable(...)
+T1F01E780 000:358.506 - 0.190ms
+T1F01E780 000:358.524 JLINK_TIF_Select(JLINKARM_TIF_SWD)
+T1F01E780 000:359.419 - 0.895ms returns 0x00
+T1F01E780 000:359.436 JLINK_SetSpeed(4000)
+T1F01E780 000:359.573 - 0.136ms
+T1F01E780 000:359.591 JLINK_SetEndian(ARM_ENDIAN_LITTLE)
+T1F01E780 000:359.598 - 0.007ms returns 0
+T1F01E780 000:359.605 JLINK_SetInitRegsOnReset(OFF)
+T1F01E780 000:359.612 - 0.006ms returns 1
+T1F01E780 000:359.619 JLINK_SetResetType(JLINKARM_RESET_TYPE_NO_RESET)
+T1F01E780 000:359.626 - 0.006ms returns JLINKARM_RESET_TYPE_NORMAL
+T1F01E780 000:359.634 JLINK_ExecCommand("EnableFlashBPs", ...). 
+T1F01E780 000:359.642 - 0.001ms returns 0x00
+T1F01E780 000:359.651 JLINK_ExecCommand("SetAllowFlashCache = 1", ...). 
+T1F01E780 000:359.660 - 0.001ms returns 0x01
+T1F01E780 000:359.668 JLINK_ExecCommand("SetRestartOnClose = 0", ...). 
+T1F01E780 000:359.678 - 0.002ms returns 0x01
+T1F01E780 000:359.685 JLINK_EnableSoftBPs(ON)
+T1F01E780 000:359.692 - 0.006ms
+T1F01E780 000:359.699 JLINK_Connect()
+T1F01E780 000:359.942   InitTarget() start
+T1F01E780 000:359.960    J-Link Script File: Executing InitTarget()
+T1F01E780 000:359.969   Identifying target device...
+T1F01E780 000:359.980   SWD selected. Executing JTAG -> SWD switching sequence...
+T1F01E780 000:461.145   Initializing DAP...
+T1F01E780 000:462.574   Error: Failed to initialized DAP.
+T1F01E780 000:462.620   Attach to CPU failed. Trying connect under reset.
+T1F01E780 000:563.319   Identifying target device...
+T1F01E780 000:563.376   SWD selected. Executing JTAG -> SWD switching sequence...
+T1F01E780 000:664.165   Initializing DAP...
+T1F01E780 000:665.510   Error: Failed to initialized DAP.
+T1F01E780 000:665.549   SC32 (connect): Cannot power up debug port. Cannot connect to CPU.
+T1F01E780 000:765.964   InitTarget() end - Took 405ms
+T1F01E780 000:766.019   Connect failed. Resetting via Reset pin and trying again.
+T1F01E780 000:826.995   InitTarget() start
+T1F01E780 000:827.044    J-Link Script File: Executing InitTarget()
+T1F01E780 000:827.061   Identifying target device...
+T1F01E780 000:827.079   SWD selected. Executing JTAG -> SWD switching sequence...
+T1F01E780 000:928.015   Initializing DAP...
+T1F01E780 000:929.377   Error: Failed to initialized DAP.
+T1F01E780 000:929.439   Attach to CPU failed. Trying connect under reset.
+T1F01E780 001:030.033   Identifying target device...
+T1F01E780 001:030.091   SWD selected. Executing JTAG -> SWD switching sequence...
+T1F01E780 001:131.020   Initializing DAP...
+T1F01E780 001:132.424   Error: Failed to initialized DAP.
+T1F01E780 001:132.466   SC32 (connect): Cannot power up debug port. Cannot connect to CPU.
+T1F01E780 001:232.734   InitTarget() end - Took 405ms
+T1F01E780 001:232.754 - 873.055ms returns 0xFFFFFFFF
+T1F01E780 029:396.954 JLINK_Close()
+T1F01E780 029:407.781 - 10.826ms
+T1F01E780 029:407.796   
+T1F01E780 029:407.800   Closed
