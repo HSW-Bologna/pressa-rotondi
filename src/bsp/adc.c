@@ -34,14 +34,14 @@ uint16_t bsp_adc_get(bsp_adc_t adc) {
         sum += samples[adc][i];
     }
 
-    return (uint16_t)(sum/NUM_SAMPLES);
+    return (uint16_t)(sum / NUM_SAMPLES);
 }
 
 
 void bsp_adc_manage(void) {
     static timestamp_t ts = 0;
 
-    if (timestamp_is_expired(ts, 100)) {
+    if (timestamp_is_expired(ts, 1)) {
         (void)R_ADC_ScanStart(&g_adc0_ctrl);
         ts = timestamp_get();
     }

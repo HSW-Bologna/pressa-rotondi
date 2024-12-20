@@ -43,3 +43,8 @@ void bsp_input_manage(void) {
 uint16_t bsp_input_map(void) {
     return (uint16_t)debounce_value(&filter);
 }
+
+
+uint8_t bsp_get_input(bsp_input_t input) {
+    return debounce_read(&filter, input);
+}

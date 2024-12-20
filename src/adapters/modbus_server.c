@@ -21,6 +21,7 @@ enum {
     MODBUS_IR_0_10V,
     MODBUS_IR_4_20MA_ADC,
     MODBUS_IR_4_20MA,
+    MODBUS_IR_PROGRAM_ELAPSED_TIME_MILLISECONDS,
 };
 
 
@@ -28,6 +29,57 @@ enum {
     MODBUS_HR_TEST_MODE = 0,
     MODBUS_HR_TEST_OUTPUTS,
     MODBUS_HR_TEST_PWM,
+    MODBUS_HR_HEADGAP_OFFSET_UP,
+    MODBUS_HR_HEADGAP_OFFSET_DOWN,
+    MODBUS_HR_TIME_UNIT_DECISECONDS,
+    MODBUS_HR_DAC_CHANNEL_LEVEL_1,
+    MODBUS_HR_DAC_CHANNEL_LEVEL_2,
+    MODBUS_HR_DAC_CHANNEL_LEVEL_3,
+    MODBUS_HR_SENSOR_CHANNEL_LEVEL_1,
+    MODBUS_HR_SENSOR_CHANNEL_LEVEL_2,
+    MODBUS_HR_SENSOR_CHANNEL_LEVEL_3,
+    MODBUS_HR_DIGITAL_CHANNEL_1_UNIT_1_to_16,
+    MODBUS_HR_DIGITAL_CHANNEL_1_UNIT_17_to_25,
+    MODBUS_HR_DIGITAL_CHANNEL_2_UNIT_1_to_16,
+    MODBUS_HR_DIGITAL_CHANNEL_2_UNIT_17_to_25,
+    MODBUS_HR_DIGITAL_CHANNEL_3_UNIT_1_to_16,
+    MODBUS_HR_DIGITAL_CHANNEL_3_UNIT_17_to_25,
+    MODBUS_HR_DIGITAL_CHANNEL_4_UNIT_1_to_16,
+    MODBUS_HR_DIGITAL_CHANNEL_4_UNIT_17_to_25,
+    MODBUS_HR_DIGITAL_CHANNEL_5_UNIT_1_to_16,
+    MODBUS_HR_DIGITAL_CHANNEL_5_UNIT_17_to_25,
+    MODBUS_HR_DIGITAL_CHANNEL_6_UNIT_1_to_16,
+    MODBUS_HR_DIGITAL_CHANNEL_6_UNIT_17_to_25,
+    MODBUS_HR_DIGITAL_CHANNEL_7_UNIT_1_to_16,
+    MODBUS_HR_DIGITAL_CHANNEL_7_UNIT_17_to_25,
+    MODBUS_HR_DIGITAL_CHANNEL_8_UNIT_1_to_16,
+    MODBUS_HR_DIGITAL_CHANNEL_8_UNIT_17_to_25,
+    MODBUS_HR_DIGITAL_CHANNEL_9_UNIT_1_to_16,
+    MODBUS_HR_DIGITAL_CHANNEL_9_UNIT_17_to_25,
+    MODBUS_HR_DIGITAL_CHANNEL_10_UNIT_1_to_16,
+    MODBUS_HR_DIGITAL_CHANNEL_10_UNIT_17_to_25,
+    MODBUS_HR_DIGITAL_CHANNEL_11_UNIT_1_to_16,
+    MODBUS_HR_DIGITAL_CHANNEL_11_UNIT_17_to_25,
+    MODBUS_HR_DIGITAL_CHANNEL_12_UNIT_1_to_16,
+    MODBUS_HR_DIGITAL_CHANNEL_12_UNIT_17_to_25,
+    MODBUS_HR_DIGITAL_CHANNEL_13_UNIT_1_to_16,
+    MODBUS_HR_DIGITAL_CHANNEL_13_UNIT_17_to_25,
+    MODBUS_HR_DIGITAL_CHANNEL_14_UNIT_1_to_16,
+    MODBUS_HR_DIGITAL_CHANNEL_14_UNIT_17_to_25,
+    MODBUS_HR_DAC_CHANNEL_UNIT_1_2_3_4,
+    MODBUS_HR_DAC_CHANNEL_UNIT_5_6_7_8,
+    MODBUS_HR_DAC_CHANNEL_UNIT_9_10_11_12,
+    MODBUS_HR_DAC_CHANNEL_UNIT_13_14_15_16,
+    MODBUS_HR_DAC_CHANNEL_UNIT_17_18_19_20,
+    MODBUS_HR_DAC_CHANNEL_UNIT_21_22_23_24,
+    MODBUS_HR_DAC_CHANNEL_UNIT_25,
+    MODBUS_HR_SENSOR_CHANNEL_UNIT_1_2_3_4,
+    MODBUS_HR_SENSOR_CHANNEL_UNIT_5_6_7_8,
+    MODBUS_HR_SENSOR_CHANNEL_UNIT_9_10_11_12,
+    MODBUS_HR_SENSOR_CHANNEL_UNIT_13_14_15_16,
+    MODBUS_HR_SENSOR_CHANNEL_UNIT_17_18_19_20,
+    MODBUS_HR_SENSOR_CHANNEL_UNIT_21_22_23_24,
+    MODBUS_HR_SENSOR_CHANNEL_UNIT_25,
 };
 
 
@@ -35,8 +87,14 @@ static ModbusError register_callback(const ModbusSlave *minion, const ModbusRegi
                                      ModbusRegisterCallbackResult *result);
 static ModbusError static_allocator(ModbusBuffer *buffer, uint16_t size, void *context);
 static ModbusError exception_callback(const ModbusSlave *minion, uint8_t function, ModbusExceptionCode code);
+static uint16_t    get_digital_channel_chunk(model_t *model, uint16_t chunk_index);
+static void        set_digital_channel_chunk(model_t *model, uint16_t chunk_index, uint16_t chunk);
+static void        set_analog_channel_chunk(uint8_t *analog_channel, uint16_t chunk_index, uint16_t chunk);
+static uint16_t    get_analog_channel_chunk(const uint8_t *analog_channel, uint16_t chunk_index);
+
 
 static ModbusSlave modbus_minion;
+
 
 void modbus_server_init(void) {
     // Read the data from stdin
@@ -116,9 +174,7 @@ static ModbusError register_callback(const ModbusSlave *minion, const ModbusRegi
             switch (args->type) {
                 case MODBUS_HOLDING_REGISTER:
                     switch (args->index) {
-                        case MODBUS_HR_TEST_MODE:
-                        case MODBUS_HR_TEST_OUTPUTS:
-                        case MODBUS_HR_TEST_PWM:
+                        case MODBUS_HR_TEST_MODE ... MODBUS_HR_SENSOR_CHANNEL_UNIT_25:
                             result->exceptionCode = MODBUS_EXCEP_NONE;
                             break;
                         default:
@@ -155,6 +211,10 @@ static ModbusError register_callback(const ModbusSlave *minion, const ModbusRegi
                             result->value = model->run.sensors.v0_10;
                             break;
 
+                        case MODBUS_IR_PROGRAM_ELAPSED_TIME_MILLISECONDS:
+                            result->value = model_get_program_elapsed_milliseconds(model);
+                            break;
+
                         default:
                             result->value = 0;
                             break;
@@ -175,6 +235,52 @@ static ModbusError register_callback(const ModbusSlave *minion, const ModbusRegi
                         case MODBUS_HR_TEST_PWM:
                             result->value = (uint16_t)model->run.test.pwm;
                             break;
+
+                        case MODBUS_HR_HEADGAP_OFFSET_UP:
+                            result->value = (uint16_t)model->run.program.headgap_offset_up;
+                            break;
+
+                        case MODBUS_HR_HEADGAP_OFFSET_DOWN:
+                            result->value = (uint16_t)model->run.program.headgap_offset_down;
+                            break;
+
+                        case MODBUS_HR_TIME_UNIT_DECISECONDS:
+                            result->value = (uint16_t)model->run.program.time_unit_milliseconds / 100;
+                            break;
+
+                        case MODBUS_HR_DAC_CHANNEL_LEVEL_1:
+                        case MODBUS_HR_DAC_CHANNEL_LEVEL_2:
+                        case MODBUS_HR_DAC_CHANNEL_LEVEL_3:
+                            result->value = model->run.program.dac_levels[args->index - MODBUS_HR_DAC_CHANNEL_LEVEL_1];
+                            break;
+
+                        case MODBUS_HR_SENSOR_CHANNEL_LEVEL_1:
+                        case MODBUS_HR_SENSOR_CHANNEL_LEVEL_2:
+                        case MODBUS_HR_SENSOR_CHANNEL_LEVEL_3:
+                            result->value =
+                                model->run.program.sensor_levels[args->index - MODBUS_HR_SENSOR_CHANNEL_LEVEL_1];
+                            break;
+
+                        case MODBUS_HR_DIGITAL_CHANNEL_1_UNIT_1_to_16 ... MODBUS_HR_DIGITAL_CHANNEL_14_UNIT_17_to_25: {
+                            uint16_t chunk_index = args->index - MODBUS_HR_DIGITAL_CHANNEL_1_UNIT_1_to_16;
+                            result->value        = get_digital_channel_chunk(model, chunk_index);
+                            break;
+                        }
+
+
+                        case MODBUS_HR_DAC_CHANNEL_UNIT_1_2_3_4 ... MODBUS_HR_DAC_CHANNEL_UNIT_21_22_23_24: {
+                            uint16_t chunk_index = args->index - MODBUS_HR_DAC_CHANNEL_UNIT_1_2_3_4;
+                            result->value =
+                                get_analog_channel_chunk(model->run.program.dac_channel_states, chunk_index);
+                            break;
+                        }
+
+                        case MODBUS_HR_SENSOR_CHANNEL_UNIT_1_2_3_4 ... MODBUS_HR_SENSOR_CHANNEL_UNIT_21_22_23_24: {
+                            uint16_t chunk_index = args->index - MODBUS_HR_SENSOR_CHANNEL_UNIT_1_2_3_4;
+                            result->value =
+                                get_analog_channel_chunk(model->run.program.sensor_channel_thresholds, chunk_index);
+                            break;
+                        }
 
                         default:
                             result->value = 0;
@@ -205,6 +311,50 @@ static ModbusError register_callback(const ModbusSlave *minion, const ModbusRegi
                             model->run.test.pwm = (uint8_t)(args->value & 0xFF);
                             break;
 
+                        case MODBUS_HR_HEADGAP_OFFSET_UP:
+                            model->run.program.headgap_offset_up = args->value;
+                            break;
+
+                        case MODBUS_HR_HEADGAP_OFFSET_DOWN:
+                            model->run.program.headgap_offset_down = args->value;
+                            break;
+
+                        case MODBUS_HR_TIME_UNIT_DECISECONDS:
+                            model->run.program.time_unit_milliseconds = args->value * 100;
+                            break;
+
+                        case MODBUS_HR_DAC_CHANNEL_LEVEL_1:
+                        case MODBUS_HR_DAC_CHANNEL_LEVEL_2:
+                        case MODBUS_HR_DAC_CHANNEL_LEVEL_3:
+                            model->run.program.dac_levels[args->index - MODBUS_HR_DAC_CHANNEL_LEVEL_1] = args->value;
+                            break;
+
+                        case MODBUS_HR_SENSOR_CHANNEL_LEVEL_1:
+                        case MODBUS_HR_SENSOR_CHANNEL_LEVEL_2:
+                        case MODBUS_HR_SENSOR_CHANNEL_LEVEL_3:
+                            model->run.program.sensor_levels[args->index - MODBUS_HR_SENSOR_CHANNEL_LEVEL_1] =
+                                args->value;
+                            break;
+
+                        case MODBUS_HR_DIGITAL_CHANNEL_1_UNIT_1_to_16 ... MODBUS_HR_DIGITAL_CHANNEL_14_UNIT_17_to_25: {
+                            uint16_t chunk_index = args->index - MODBUS_HR_DIGITAL_CHANNEL_1_UNIT_1_to_16;
+                            set_digital_channel_chunk(model, chunk_index, args->value);
+                            break;
+                        }
+
+                        case MODBUS_HR_DAC_CHANNEL_UNIT_1_2_3_4 ... MODBUS_HR_DAC_CHANNEL_UNIT_21_22_23_24: {
+                            uint16_t chunk_index = args->index - MODBUS_HR_DAC_CHANNEL_UNIT_1_2_3_4;
+                            set_analog_channel_chunk(model->run.program.dac_channel_states, chunk_index, args->value);
+                            break;
+                        }
+
+                        case MODBUS_HR_SENSOR_CHANNEL_UNIT_1_2_3_4 ... MODBUS_HR_SENSOR_CHANNEL_UNIT_21_22_23_24: {
+                            uint16_t chunk_index = args->index - MODBUS_HR_SENSOR_CHANNEL_UNIT_1_2_3_4;
+                            set_analog_channel_chunk(model->run.program.sensor_channel_thresholds, chunk_index,
+                                                     args->value);
+                            break;
+                        }
+
                         default:
                             break;
                     }
@@ -230,4 +380,41 @@ static ModbusError exception_callback(const ModbusSlave *minion, uint8_t functio
     (void)function;
     (void)code;
     return MODBUS_OK;
+}
+
+
+static void set_analog_channel_chunk(uint8_t *analog_channel, uint16_t chunk_index, uint16_t chunk) {
+    uint16_t channel_index = chunk_index * 4;
+
+    analog_channel[chunk_index] = (chunk >> 12) & 0xF;
+    analog_channel[chunk_index] = (chunk >> 8) & 0xF;
+    analog_channel[chunk_index] = (chunk >> 4) & 0xF;
+    analog_channel[chunk_index] = chunk & 0xF;
+}
+
+
+static uint16_t get_analog_channel_chunk(const uint8_t *analog_channel, uint16_t chunk_index) {
+    uint16_t channel_index = chunk_index * 4;
+
+    return ((analog_channel[chunk_index] & 0xF) << 12) | ((analog_channel[chunk_index + 1] & 0xF) << 8) |
+           ((analog_channel[chunk_index + 2] & 0xF) << 4) | (analog_channel[chunk_index + 3] & 0xF);
+}
+
+
+static uint16_t get_digital_channel_chunk(model_t *model, uint16_t chunk_index) {
+    uint16_t ratio         = sizeof(digital_channel_schedule_t) / sizeof(uint16_t);
+    uint16_t channel_index = chunk_index / ratio;
+    uint16_t shift         = 16 * ((ratio % sizeof(uint16_t)) == 0);
+
+    return (model->run.program.digital_channel_schedules[channel_index] >> shift) & 0xFFFF;
+}
+
+
+static void set_digital_channel_chunk(model_t *model, uint16_t chunk_index, uint16_t chunk) {
+    uint16_t ratio         = sizeof(digital_channel_schedule_t) / sizeof(uint16_t);
+    uint16_t channel_index = chunk_index / ratio;
+    uint16_t shift         = 16 * ((ratio % 2) == 0);
+
+    model->run.program.digital_channel_schedules[channel_index] &= ~((digital_channel_schedule_t)0xFFFF << shift);
+    model->run.program.digital_channel_schedules[channel_index] |= chunk << shift;
 }
